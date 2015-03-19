@@ -1,20 +1,67 @@
 package loadbalancer;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-public class Master {
-	private Map<Integer,String> IdHostMap =new HashMap<Integer,String>();
-	private Set<Integer> activehostIds =new HashSet<Integer>();
-	public void join(String host){
-		
-	}
-	private int getHashValue(int key){
-		return 0;
-	}
-	public String getHostName(int key){
-		return null;
-	}
+public class Master implements Runnable{
+	
+	protected int          serverPort   = 8080;
+    protected ServerSocket serverSocket = null;
+    protected boolean      isStopped    = false;
+    protected Thread       runningThread= null;
+
+    public Master(int port){
+        this.serverPort = port;
+    }
+
+    public void run(){
+        synchronized(this){
+            this.runningThread = Thread.currentThread();
+        }
+        openServerSocket();
+        while(! isStopped()){
+            Socket clientSocket = null;
+            try {
+                clientSocket = this.serverSocket.accept();
+            } catch (IOException e) {
+                if(isStopped()) {
+                    System.out.println("Server Stopped.") ;
+                    return;
+                }
+                throw new RuntimeException(
+                    "Error accepting client connection", e);
+            }
+            new Thread(
+                new Worker(
+                    clientSocket, "Multithreaded Server")
+            ).start();
+        }
+        System.out.println("Server Stopped.") ;
+    }
+
+
+    private synchronized boolean isStopped() {
+        return this.isStopped;
+    }
+
+    public synchronized void stop(){
+        this.isStopped = true;
+        try {
+            this.serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error closing server", e);
+        }
+    }
+
+    private void openServerSocket() {
+        try {
+            this.serverSocket = new ServerSocket(this.serverPort);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot open port 8080", e);
+        }
+    }
+
 }
+	
+
