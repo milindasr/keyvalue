@@ -1,7 +1,17 @@
 package loadbalancer;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
+/**
+ * Worker threads which work on each thread
+ * thread logic from http://tutorials.jenkov.com/java-multithreaded-servers/multithreaded-server.html
+ * @author Milind
+ *
+ */
 public class Worker implements Runnable{
 	protected Socket clientSocket = null;
 	protected String serverText   = null;
@@ -13,8 +23,24 @@ public class Worker implements Runnable{
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		try {
+            InputStream input  = clientSocket.getInputStream();
+            OutputStream output = clientSocket.getOutputStream();
+            DataInputStream in =
+                    new DataInputStream(input);
+            String request=in.readUTF();
+            processRequest(request);
+            output.close();
+            input.close();
+           
+        } catch (IOException e) {
+          
+            e.printStackTrace();
+        }
 
+	}
+	public void processRequest(String request){
+		
 	}
 	public void join(String host){
 		

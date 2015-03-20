@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Main server thread which accepts requests.
+ * thread logic from http://tutorials.jenkov.com/java-multithreaded-servers/multithreaded-server.html
+ * @author Milind
+ *
+ */
 public class Master implements Runnable{
 	
 	protected int          serverPort   = 8080;
@@ -61,7 +67,10 @@ public class Master implements Runnable{
             throw new RuntimeException("Cannot open port 8080", e);
         }
     }
-
+   public static void main(String args[]){
+	   Master server = new Master(9000);
+	   new Thread(server).start();
+   }
 }
 	
 
