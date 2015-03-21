@@ -29,6 +29,7 @@ public class Worker implements Runnable{
             DataInputStream in =
                     new DataInputStream(input);
             String request=in.readUTF();
+           // System.out.println(request+"***************");
             processRequest(request);
             output.close();
             input.close();

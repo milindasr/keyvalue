@@ -12,7 +12,21 @@ import java.util.Set;
  *
  */
 public class Data {
-	private static Map<Integer,String> IdHostMap =Collections.synchronizedMap(new HashMap<Integer,String>());
+	class Node{
+		public String host;
+		public int port;
+		Node(String host,int port){
+			this.host=host;
+			this.port=port;
+		}
+	}
+	private static int counter=1;
+	private static Map<Integer,Node> IdHostMap =Collections.synchronizedMap(new HashMap<Integer,Node>());
 	private static Set<Integer> activehostIds =Collections.synchronizedSet(new HashSet<Integer>());
-	
+	public void addNode(String host,int port){
+		Node n=new Node(host,port);
+		IdHostMap.put(counter,n);
+		activehostIds.add(counter);
+		counter++;
+	}
 }
