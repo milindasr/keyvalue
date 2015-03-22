@@ -6,9 +6,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class StorageClient {
 	public void sendPutrequest(int key,String value){
+		String hostString="GETHOST "+key;
+		String slaveinfo=serverHandler("localhost",9000,hostString);
+		Scanner sc=new Scanner(slaveinfo);
+		sc.next();
+		String slavehost=sc.next();
+		int slaveport=sc.nextInt();
+		sc.close();
+		String putString="PUT "+key+" "+value;
+		serverHandler(slavehost,slaveport,putString);
 		
 	}
 	public void sendGetRequest(int key){
@@ -46,5 +56,6 @@ public class StorageClient {
 	}
 	public static void main(String args[]){
 		StorageClient sc=new StorageClient();
+		sc.sendPutrequest(1, "choooooo");
 	}
 }

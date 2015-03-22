@@ -1,11 +1,14 @@
 package slaves;
 
 import java.io.DataInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
  * Single threaded server to process get and put requests
@@ -58,14 +61,33 @@ public class SlaveServer implements Runnable{
         DataInputStream in =
                 new DataInputStream(input);
         String request=in.readUTF();
+        
         processRequest(request);
         output.close();
         input.close();
      
     }
     public void processRequest(String request){
-		
+    	Scanner sc=new Scanner(request.trim());
+		String type=sc.next();
+		if(type.equals("PUT")){
+			int key=sc.nextInt();
+			String value=sc.next();
+			put(key,value);
+			sc.close();
+		}
 	}
+    private void put(int key,String value){
+    	try {
+			FileWriter file=new FileWriter("C:\\Users\\Milind\\Desktop\\dbms code\\inteview\\db.txt",true);
+			PrintWriter pw=new PrintWriter(file);
+			pw.print(key+" "+value+"\n");
+			pw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     private synchronized boolean isStopped() {
         return this.isStopped;
     }

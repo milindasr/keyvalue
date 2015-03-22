@@ -9,7 +9,7 @@ import java.net.Socket;
 
 public class SlaveMasterClient {
 	public void sendJoinRequest(){
-		String joinString="JOIN:localhost";
+		String joinString="JOIN localhost 9001";
 		serverHandler("localhost",9000,joinString);
 	}
 	@SuppressWarnings("finally")
