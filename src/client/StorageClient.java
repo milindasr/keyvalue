@@ -22,7 +22,15 @@ public class StorageClient {
 		
 	}
 	public void sendGetRequest(int key){
-		
+		String hostString="GETHOST "+key;
+		String slaveinfo=serverHandler("localhost",9000,hostString);
+		Scanner sc=new Scanner(slaveinfo);
+		sc.next();
+		String slavehost=sc.next();
+		int slaveport=sc.nextInt();
+		sc.close();
+		String putString="GET "+key;
+		serverHandler(slavehost,slaveport,putString);
 	}
 	
 	@SuppressWarnings("finally")
