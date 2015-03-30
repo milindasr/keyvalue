@@ -11,15 +11,28 @@ import java.util.Scanner;
 public class StorageClient {
 	public void sendPutrequest(int key,String value){
 		String hostString="GETHOST "+key;
-		String slaveinfo=serverHandler("localhost",9000,hostString);
-		Scanner sc=new Scanner(slaveinfo);
-		sc.next();
-		String slavehost=sc.next();
-		int slaveport=sc.nextInt();
-		sc.close();
 		String putString="PUT "+key+" "+value;
+		String slavehost = null;
+		int slaveport = 0;
+		String slaveinfo=serverHandler("localhost",9000,hostString);
+		slaveinfo=slaveinfo.substring(8);
+		String[] slaves=slaveinfo.split("::");
+
+		for(int i=0;i<3;i++){
+			Scanner sc=new Scanner(slaves[i]);
+			if(i==0){
+				slavehost=sc.next();
+				slaveport=sc.nextInt();
+			}
+			else {
+				putString=putString+ "::"+ slaves[i];
+			}
+			sc.close();
+		}
+
+
 		serverHandler(slavehost,slaveport,putString);
-		
+
 	}
 	public void sendGetRequest(int key){
 		String hostString="GETHOST "+key;

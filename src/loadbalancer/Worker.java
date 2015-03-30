@@ -72,6 +72,6 @@ public class Worker implements Runnable{
 	}
 	public String getHostName(int key){
 		int hash=getHashValue(key);
-		return Data.getNodeString(hash);
+		return Data.getNodeString(hash)+ "::"+Data.getNodeString(hash+1)+ "::"+ Data.getNodeString(hash+2) ;
 	}
 }

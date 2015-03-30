@@ -8,8 +8,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public class SlaveMasterClient {
-	public void sendJoinRequest(){
-		String joinString="JOIN localhost 9001";
+	public void sendJoinRequest(String host,int port){
+		String joinString="JOIN "+ host +" " + port;
 		serverHandler("localhost",9000,joinString);
 	}
 	@SuppressWarnings("finally")

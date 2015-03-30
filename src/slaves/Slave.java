@@ -4,12 +4,13 @@ public class Slave {
 	SlaveMasterClient masterClient;
 	SlaveServer server;
 	public static void main(String args[]){
-		Slave slave=new Slave();
+		new Slave(args[0],Integer.parseInt(args[1]),args[2]);
 	}
-	public Slave(){
+	public Slave(String host,int port,String path){
 		masterClient=new SlaveMasterClient();
-		server=new SlaveServer(9001);
+	//	server=new SlaveServer(port,"C:\\Users\\Milind\\Desktop\\dbms code\\inteview\\db.txt");
+		server=new SlaveServer(port,path);
 		new Thread(server).start();
-		masterClient.sendJoinRequest();
+		masterClient.sendJoinRequest(host,port);
 	}
 }
