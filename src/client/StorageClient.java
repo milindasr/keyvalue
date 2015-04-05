@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class StorageClient {
 	public void sendPutrequest(int key,String value){
 		String hostString="GETHOST "+key;
-		String putString="PUT "+key+" "+value;
+		String putString="";
 		String slavehost = null;
 		int slaveport = 0;
 		String slaveinfo=serverHandler("localhost",9000,hostString);
@@ -23,6 +23,15 @@ public class StorageClient {
 			if(i==0){
 				slavehost=sc.next();
 				slaveport=sc.nextInt();
+				String flag=sc.next();
+				if(flag.equals("T")){
+					putString=putString+"PUT "+key+" "+value;
+				}
+				else{
+					String achost=sc.next();
+					String acport=sc.next();
+					putString=putString+"PUTS "+key+" "+value+" "+achost+" "+acport;
+				}
 			}
 			else {
 				putString=putString+ "::"+ slaves[i];

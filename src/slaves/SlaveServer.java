@@ -23,10 +23,12 @@ public class SlaveServer implements Runnable{
     protected boolean      isStopped    = false;
     protected Thread       runningThread= null;
     protected String       path="";
+    protected String 	   secpath="";
 
-    public SlaveServer(int port,String path){
+    public SlaveServer(int port,String path,String secpath){
         this.serverPort = port;
         this.path=path;
+        this.secpath=secpath;
     }
 
     public void run(){
@@ -82,40 +84,82 @@ public class SlaveServer implements Runnable{
     			sc.next();
     			int key=sc.nextInt();
     			String value=sc.next();
+    			writetoPrimRSec(put);
     			sc.close();
-    			put(key,value);
     			String nextNode=splits[1];
     			Scanner sc1=new Scanner(nextNode);
     			String host1=sc1.next();
     			int port1=sc1.nextInt();
-    			String nextNode1=splits[2];
     			sc1.close();
+    			String req1=createPutrequestString(key,value, nextNode);
+    			String nextNode1=splits[2];
     			Scanner sc2=new Scanner(nextNode1);
     			String host2=sc2.next();
     			int port2=sc2.nextInt();
     			sc2.close();
+    			String req2=createPutrequestString(key,value, nextNode1);
     			SlaveReplicationClient repclient1=new SlaveReplicationClient();
-    			repclient1.sendPutrequest(key, value, host1, port1);
+    			repclient1.sendPutrequest(req1, host1, port1);
     			SlaveReplicationClient repclient2=new SlaveReplicationClient();
-    			repclient2.sendPutrequest(key, value, host2, port2);
+    			repclient2.sendPutrequest(req2, host2, port2);
     			
     			
     		}
     		else{
-    			Scanner sc=new Scanner(request);
-    			sc.next();
-    			int key=sc.nextInt();
-    			String value=sc.next();
-    			sc.close();
-    			put(key,value);
+    			writetoPrimRSec(request);
+    			
     		}
     	}
+    }
+    private void writetoPrimRSec(String put){
+    	Scanner sc=new Scanner(put);
+		sc.next();
+		int key=sc.nextInt();
+		String value=sc.next();
+		
+		if(put.startsWith("PUTS")){
+			String host=sc.next();
+			String port=sc.next();
+			put(key,value,host,port);
+		}
+		else{
+			put(key,value);
+		}
+		sc.close();
+    }
+    private String createPutrequestString(int key,String value,String nextNode){
+    	Scanner sc1=new Scanner(nextNode);
+		sc1.next();
+		sc1.nextInt();
+		String flag=sc1.next();
+		String returns="";
+		if(flag.equals("T")){
+			returns=returns+"PUT "+key+" "+value;
+		}
+		else{
+			returns=returns+"PUTS "+key+" "+value+" "+sc1.next()+" "+sc1.next();
+		}
+		sc1.close();
+		return returns;
     }
     private void put(int key,String value){
     	try {
 			FileWriter file=new FileWriter(path,true);
 			PrintWriter pw=new PrintWriter(file);
 			pw.print(key+" "+value+"\n");
+			System.out.println(key+" "+value+"\nwritten to primary database");
+			pw.close();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+    }
+    private void put(int key,String value,String host,String port){
+    	try {
+			FileWriter file=new FileWriter(secpath,true);
+			PrintWriter pw=new PrintWriter(file);
+			pw.print(key+" "+value+" "+host+" "+port+"\n");
+			System.out.println(key+" "+value+" "+host+" "+port+"\n written to secondary database");
 			pw.close();
 		} catch (IOException e) {
 			
@@ -125,7 +169,7 @@ public class SlaveServer implements Runnable{
     private synchronized boolean isStopped() {
         return this.isStopped;
     }
-
+   
     public synchronized void stop(){
         this.isStopped = true;
         try {
@@ -138,6 +182,7 @@ public class SlaveServer implements Runnable{
     private void openServerSocket() {
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
+            System.out.println("Slave running and accepting requests at port "+this.serverPort);
         } catch (IOException e) {
             throw new RuntimeException("Cannot open port 8080", e);
         }

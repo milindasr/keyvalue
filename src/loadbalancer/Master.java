@@ -63,6 +63,7 @@ public class Master implements Runnable{
     private void openServerSocket() {
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
+            System.out.println("Master running and accepting requests at port "+this.serverPort);
         } catch (IOException e) {
             throw new RuntimeException("Cannot open port 8080", e);
         }

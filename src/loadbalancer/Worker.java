@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 /**
@@ -72,6 +75,57 @@ public class Worker implements Runnable{
 	}
 	public String getHostName(int key){
 		int hash=getHashValue(key);
-		return Data.getNodeString(hash)+ "::"+Data.getNodeString(hash+1)+ "::"+ Data.getNodeString(hash+2) ;
+		StringBuffer hostString=new StringBuffer();
+		ArrayList<Integer> livehashes = new ArrayList<Integer>();
+		ArrayList<Integer> truehashes = new ArrayList<Integer>();
+		HashMap<Integer,Integer> hashhash=new HashMap<Integer,Integer>();
+		int temphash=hash;
+		for(int i=0;i<3;i++){
+			truehashes.add(temphash++);
+		}
+		int count=0;
+		temphash=hash;
+		while(count<3){
+			if(Data.isActive(temphash)){
+				livehashes.add(temphash);
+				count++;
+			}
+			temphash++;
+		}
+		for(Integer i:livehashes){
+			if(truehashes.contains(i)){
+				hashhash.put(i, -1);
+				//livehashes.remove(i);
+				//truehashes.remove(i);
+			}
+		}
+		for(Entry<Integer,Integer> e: hashhash.entrySet()){
+			if(e.getValue()==-1){
+				livehashes.remove(e.getKey());
+				truehashes.remove(e.getKey());
+			}
+		}
+		for(int i=0;i<livehashes.size();i++){
+			hashhash.put(livehashes.get(i),truehashes.get(i));
+		}
+		for(Entry<Integer,Integer> e: hashhash.entrySet()){
+			hostString.append(Data.getNodeString(e.getKey()));
+			if(e.getValue()==-1){
+				hostString.append(" T ");
+				hostString.append(Data.getNodeString(e.getKey()));
+			}
+			else{
+				hostString.append(" F ");
+				hostString.append(Data.getNodeString(e.getValue()));
+			}
+			hostString.append("::");
+		}
+	
+		System.out.println(hostString);
+		return hostString.toString();
+		
 	}
+	
+	
+	
 }

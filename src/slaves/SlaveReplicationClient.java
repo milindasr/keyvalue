@@ -8,10 +8,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public class SlaveReplicationClient {
-	public void sendPutrequest(int key,String value,String host,int port){
+	public void sendPutrequest(String req,String host,int port){
 	
-		String putString="PUT "+key+" "+value;
-		serverHandler(host,port,putString);
+		
+		serverHandler(host,port,req);
 
 	}
 	@SuppressWarnings("finally")
@@ -19,11 +19,9 @@ public class SlaveReplicationClient {
 		String response="";
 		try
 		{
-		   System.out.println("CLIENT Connecting to " + serverName
-		                       + " on port " + port);
+		   
 		   Socket client = new Socket(serverName, port);
-		   System.out.println("CLIENT Just connected to "
-		                + client.getRemoteSocketAddress());
+		   System.out.println("slave client sent "+requestString+" at address "+ client.getRemoteSocketAddress());
 		   OutputStream outToServer = client.getOutputStream();
 		   DataOutputStream out =
 		                 new DataOutputStream(outToServer);

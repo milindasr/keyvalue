@@ -17,11 +17,9 @@ public class SlaveMasterClient {
 		String response="";
 		try
 		{
-		   System.out.println("CLIENT Connecting to " + serverName
-		                       + " on port " + port);
+		  
 		   Socket client = new Socket(serverName, port);
-		   System.out.println("CLIENT Just connected to "
-		                + client.getRemoteSocketAddress());
+		   System.out.println("slave client sent "+requestString+" at address "+ client.getRemoteSocketAddress());
 		   OutputStream outToServer = client.getOutputStream();
 		   DataOutputStream out =
 		                 new DataOutputStream(outToServer);
