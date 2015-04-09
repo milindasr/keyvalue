@@ -147,7 +147,7 @@ public class SlaveServer implements Runnable{
 			FileWriter file=new FileWriter(path,true);
 			PrintWriter pw=new PrintWriter(file);
 			pw.print(key+" "+value+"\n");
-			System.out.println(key+" "+value+"\nwritten to primary database");
+			System.out.println(key+" "+value+"\nwritten to primary database"+path);
 			pw.close();
 		} catch (IOException e) {
 			
@@ -159,7 +159,7 @@ public class SlaveServer implements Runnable{
 			FileWriter file=new FileWriter(secpath,true);
 			PrintWriter pw=new PrintWriter(file);
 			pw.print(key+" "+value+" "+host+" "+port+"\n");
-			System.out.println(key+" "+value+" "+host+" "+port+"\n written to secondary database");
+			System.out.println(key+" "+value+" "+host+" "+port+"\n written to secondary database"+secpath);
 			pw.close();
 		} catch (IOException e) {
 			

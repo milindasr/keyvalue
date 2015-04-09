@@ -12,6 +12,15 @@ public class SlaveMasterClient {
 		String joinString="JOIN "+ host +" " + port;
 		serverHandler("localhost",9000,joinString);
 	}
+	public boolean sendIsAlive(String host,int port){
+		String joinString="ISALIVE "+ host +" " + port;
+		String status=serverHandler("localhost",9000,joinString);
+		if(status.equals("ALIVE"))
+			return true;
+		else{
+			return false;
+		}
+	}
 	@SuppressWarnings("finally")
 	private String serverHandler(String serverName, int port,String requestString) {
 		String response="";
@@ -28,7 +37,7 @@ public class SlaveMasterClient {
 		   InputStream inFromServer = client.getInputStream();
 		   DataInputStream in =
 		                  new DataInputStream(inFromServer);
-		  // response=in.readUTF();
+		   response=in.readUTF();
 		   client.close();
 		   return response;
 		}catch(IOException e)

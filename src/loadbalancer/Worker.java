@@ -34,7 +34,6 @@ public class Worker implements Runnable{
             DataInputStream in =
                     new DataInputStream(input);
             String request=in.readUTF();
-           // System.out.println(request+"***************");
             processRequest(request,output);
             output.close();
             input.close();
@@ -53,6 +52,14 @@ public class Worker implements Runnable{
 			int port=sc.nextInt();
 			join(host,port);
 			sc.close();
+			try {
+				DataOutputStream out =
+						new DataOutputStream(output);
+				out.writeUTF("OK");
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		else if(type.equals("GETHOST")){
 			int key=sc.nextInt();
@@ -66,6 +73,43 @@ public class Worker implements Runnable{
 				e.printStackTrace();
 			}
 		}
+		else if(type.equals("ISALIVE")){
+			String host=sc.next();
+			int port=sc.nextInt();
+			String status="";
+			if(Data.isActive(host, port)){
+				status=status+"ALIVE";
+			}
+			else{
+				status=status+"DEAD";
+			}
+			try {
+				DataOutputStream out =
+						new DataOutputStream(output);
+				out.writeUTF(status);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else if(type.equals("KEEP_ALIVE")){
+			String host=sc.next();
+			int port=sc.nextInt();
+			
+			updatetime(host,port);
+			sc.close();
+			try {
+				DataOutputStream out =
+						new DataOutputStream(output);
+				out.writeUTF("OK");
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	public void updatetime(String host,int port){
+		Data.setActive(host,port);
 	}
 	public void join(String host,int port){
 		Data.addNode(host,port);
