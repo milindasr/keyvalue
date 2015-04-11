@@ -4,6 +4,7 @@ public class Slave {
 	SlaveMasterClient masterClient;
 	SlaveServer server;
 	HeartBeat heartBeatmsg;
+	SecondaryScanner secscanner;
 
 	public static void main(String args[]){
 		new Slave(args[0],Integer.parseInt(args[1]),args[2],args[3]);
@@ -15,6 +16,8 @@ public class Slave {
 		masterClient.sendJoinRequest(host,port);
 		heartBeatmsg = new HeartBeat(host,port);
 		new Thread(heartBeatmsg).start();
+		secscanner=new SecondaryScanner(secpath);
+		new Thread(secscanner).start();
 
 	}
 }

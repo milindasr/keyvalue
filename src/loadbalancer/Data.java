@@ -41,6 +41,15 @@ public class Data {
 	private static int counter=1;
 	private static Map<Integer,Node> IdHostMap =Collections.synchronizedMap(new HashMap<Integer,Node>());
 	public static void addNode(String host,int port){
+		for(Entry<Integer, Node> e: IdHostMap.entrySet()){
+			Node n=e.getValue();
+			if(n.host.equals(host) && n.port==port){
+				Date now=new Date();
+			    n.date=now;
+			    System.out.println("join again");
+			    return;
+			}
+		}
 		Node n=new Node(host,port);
 		IdHostMap.put(counter,n);
 		counter++;
@@ -63,7 +72,7 @@ public class Data {
 		System.out.println(hash);
 		System.out.println(n);
 		long diffinmillis=currDate.getTime()-n.date.getTime();
-		if(diffinmillis> 16000){
+		if(diffinmillis> 15100){
 			return false;
 		}
 		return true;
@@ -80,13 +89,15 @@ public class Data {
 	public static boolean isActive(String host,int port){
 		for(Entry<Integer, Node> e: IdHostMap.entrySet()){
 			Node n=e.getValue();
-			if(n.host==host && n.port==port){
+			if(n.host.equals(host) && n.port==port){
 				Date now=new Date();
-				if((now.getTime()-n.date.getTime())<16000){
+				if((now.getTime()-n.date.getTime())<15100){
+					System.out.println("returned isalive true");
 					return true;
 				}
 			}
 		}
+		System.out.println("returned isalive false");
 		return false;
 	}
 }
