@@ -14,6 +14,9 @@ public class SlaveReplicationClient {
 		serverHandler(host,port,req);
 
 	}
+	public String sendGetrquest(String req,String host,int port){
+		return serverHandler(host,port,req);
+	}
 	@SuppressWarnings("finally")
 	private String serverHandler(String serverName, int port,String requestString) {
 		String response="";

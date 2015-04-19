@@ -31,6 +31,8 @@ public class SecondaryScanner implements Runnable{
 				BufferedWriter writer = new BufferedWriter(new FileWriter(temp));
 				String currentLine;
 				while((currentLine = reader.readLine()) != null) {
+					if(currentLine.isEmpty())
+						continue;
 					Scanner sc=new Scanner(currentLine);
 		        	int key=sc.nextInt();
 		        	String value=sc.next();

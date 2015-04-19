@@ -73,6 +73,18 @@ public class Worker implements Runnable{
 				e.printStackTrace();
 			}
 		}
+		else if(type.equals("GETHOSG")){
+			int key=sc.nextInt();
+			String hostinfo="GETHOSG "+getanyHost(key);
+			try {
+				DataOutputStream out =
+						new DataOutputStream(output);
+				out.writeUTF(hostinfo);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		else if(type.equals("ISALIVE")){
 			String host=sc.next();
 			int port=sc.nextInt();
@@ -116,6 +128,18 @@ public class Worker implements Runnable{
 	}
 	private int getHashValue(int key){
 		return 1;
+	}
+	public String getanyHost(int key){
+		int hash=getHashValue(key);
+		StringBuffer hostString=new StringBuffer();
+		for(int i=0;i<3;i++){
+			if(Data.isActive(hash)){
+				hostString.append(Data.getNodeString(hash));
+				hostString.append("::");
+			}
+			hash++;
+		}
+		return hostString.toString();
 	}
 	public String getHostName(int key){
 		int hash=getHashValue(key);

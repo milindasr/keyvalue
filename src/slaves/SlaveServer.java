@@ -1,7 +1,11 @@
 package slaves;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +28,7 @@ public class SlaveServer implements Runnable{
     protected Thread       runningThread= null;
     protected String       path="";
     protected String 	   secpath="";
-
+    protected String[]     getValues=new String[3];
     public SlaveServer(int port,String path,String secpath){
         this.serverPort = port;
         this.path=path;
@@ -68,14 +72,15 @@ public class SlaveServer implements Runnable{
         String request=in.readUTF();
         DataOutputStream out =
 				new DataOutputStream(output);
-		out.writeUTF("OK");
 		
-        processRequest(request);
+        String returnstring=processRequest(request);
+        System.out.println("THIS IS IT"+returnstring);
+        out.writeUTF(returnstring);
         output.close();
         input.close();
      
     }
-    public void processRequest(String request){
+    public String processRequest(String request){
     	if(request.startsWith("PUT")){
     		if(request.contains("::")){
     			String[] splits=request.split("::");
@@ -109,8 +114,47 @@ public class SlaveServer implements Runnable{
     			writetoPrimRSec(request);
     			
     		}
+    		return "OK";
     	}
+    	else if(request.startsWith("GET")){
+    		if(request.contains("::")){
+    			String[] splits=request.split("::");
+    			String get=splits[0];
+    			Scanner sc=new Scanner(get);
+    			sc.next();
+    			sc.nextInt();
+    			sc.close();
+    			getValues[0]=readString(get);
+    			for(int i=1;i<splits.length;i++){
+    				Scanner sc1=new Scanner(splits[i]);
+    				String host1=sc1.next();
+        			int port1=sc1.nextInt();
+        			sc1.close();
+        			synchronized(this){
+        			SlaveReplicationClient repclient1=new SlaveReplicationClient();
+        			getValues[i]=repclient1.sendGetrquest(get, host1, port1);
+        			}
+    			}
+    			String ret="";
+    			for(int i=0;i<getValues.length;i++){
+    				ret=ret+getValues[i];
+    			}
+    			return ret;
+    		}
+    		else{
+    			return readString(request);
+    		}
+    	}
+    	return "OK";
     }
+    private String readString(String get){
+    	Scanner sc=new Scanner(get);
+		sc.next();
+		int key=sc.nextInt();
+		sc.close();
+		return get(key);
+    }
+    
     private void writetoPrimRSec(String put){
     	Scanner sc=new Scanner(put);
 		sc.next();
@@ -142,13 +186,71 @@ public class SlaveServer implements Runnable{
 		sc1.close();
 		return returns;
     }
-    private void put(int key,String value){
+    private String get(int key){
+    	String getty="";
     	try {
-			FileWriter file=new FileWriter(path,true);
-			PrintWriter pw=new PrintWriter(file);
-			pw.print(key+" "+value+"\n");
+    		File f = new File(path);
+    		BufferedReader reader = new BufferedReader(new FileReader(f));
+    		String currentLine;
+			while((currentLine = reader.readLine()) != null ) {
+				if(currentLine.isEmpty())
+					continue;
+				Scanner sc=new Scanner(currentLine);
+	        	int filekey=sc.nextInt();
+	        	String filevalue=sc.next();
+	        	int version=sc.nextInt();
+	        	sc.close();
+	        	if(filekey==key){
+	        		getty=getty+filevalue+" "+version;
+	        		return getty;
+	        	}
+			}
+			reader.close();
+			return "-1 -1";
+    } catch (IOException e) {
+		
+		e.printStackTrace();
+	}
+    	return "-1 -1";
+    }
+    private void put(int key,String value){
+    	boolean status=false;
+    	try {
+    		File f = new File(path);
+    		String tempString=path+serverPort;
+			File temp=new File(tempString);
+			if(!f.exists()){
+				f.createNewFile();
+			}
+			BufferedReader reader = new BufferedReader(new FileReader(f));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(temp));
+			String currentLine;
+			while((currentLine = reader.readLine()) != null ) {
+				if(currentLine.isEmpty())
+					continue;
+				Scanner sc=new Scanner(currentLine);
+	        	int filekey=sc.nextInt();
+	        	String filevalue=sc.next();
+	        	int version=sc.nextInt();
+	        	sc.close();
+	        	if(filekey==key){
+	        		version++;
+	        		writer.write("\n"+filekey+" "+filevalue+" "+version);
+	        		status=true;
+	        	}
+	        	else{
+	        		writer.write("\n"+filekey+" "+filevalue+" "+version);
+	        	}
+			}
+			if(!status){
+				writer.write("\n"+key+" "+value+" "+0);
+			}
+			reader.close();
+			writer.close();
+			f.delete();
+        	temp.renameTo(f);
 			System.out.println(key+" "+value+"\nwritten to primary database"+path);
-			pw.close();
+			
 		} catch (IOException e) {
 			
 			e.printStackTrace();
@@ -158,7 +260,7 @@ public class SlaveServer implements Runnable{
     	try {
 			FileWriter file=new FileWriter(secpath,true);
 			PrintWriter pw=new PrintWriter(file);
-			pw.print(key+" "+value+" "+host+" "+port+"\n");
+			pw.print("\n"+key+" "+value+" "+host+" "+port+"\n");
 			System.out.println(key+" "+value+" "+host+" "+port+"\n written to secondary database"+secpath);
 			pw.close();
 		} catch (IOException e) {

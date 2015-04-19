@@ -44,15 +44,30 @@ public class StorageClient {
 
 	}
 	public void sendGetRequest(int key){
-		String hostString="GETHOST "+key;
+		String hostString="GETHOSG "+key;
+		String getString="";
+		String slavehost = null;
+		int slaveport = 0;
 		String slaveinfo=serverHandler("localhost",9000,hostString);
-		Scanner sc=new Scanner(slaveinfo);
-		sc.next();
-		String slavehost=sc.next();
-		int slaveport=sc.nextInt();
-		sc.close();
-		String putString="GET "+key;
-		serverHandler(slavehost,slaveport,putString);
+		slaveinfo=slaveinfo.substring(8);
+		String[] slaves=slaveinfo.split("::");
+		for(int i=0;i<slaves.length;i++){
+			Scanner sc=new Scanner(slaves[i]);
+			if(i==0){
+				slavehost=sc.next();
+				slaveport=sc.nextInt();
+				getString=getString+"GET "+key;
+			}
+			else {
+				getString=getString+ "::"+ slaves[i];
+			}
+			sc.close();
+		}
+
+        System.out.println(getString+"**************");
+		serverHandler(slavehost,slaveport,getString);
+	
+
 	}
 	
 	@SuppressWarnings("finally")
@@ -86,6 +101,7 @@ public class StorageClient {
 	}
 	public static void main(String args[]){
 		StorageClient sc=new StorageClient();
-		sc.sendPutrequest(1, "choooooo");
+		//sc.sendPutrequest(1, "choooooo");
+		sc.sendGetRequest(1);
 	}
 }
