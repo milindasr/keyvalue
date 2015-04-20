@@ -38,7 +38,7 @@ public class Data {
 			return port*13;
 		}*/
 	}
-	private static int counter=1;
+	private static int counter=0;
 	private static Map<Integer,Node> IdHostMap =Collections.synchronizedMap(new HashMap<Integer,Node>());
 	public static void addNode(String host,int port){
 		for(Entry<Integer, Node> e: IdHostMap.entrySet()){
@@ -55,18 +55,30 @@ public class Data {
 		counter++;
 	}
 	public static String getNodeString(int hash){
+		if(hash>=counter){
+			hash=hash%counter;
+		}
 		Node n=IdHostMap.get(hash);
 		return n.toString();
 	}
 	public static String getNodeip(int hash){
+		if(hash>=counter){
+			hash=hash%counter;
+		}
 		Node n=IdHostMap.get(hash);
 		return n.host;
 	}
 	public static String getNodeport(int hash){
+		if(hash>=counter){
+			hash=hash%counter;
+		}
 		Node n=IdHostMap.get(hash);
 		return Integer.toString(n.port);
 	}
 	public static boolean isActive(int hash){
+		if(hash>=counter){
+			hash=hash%counter;
+		}
 		Node n=IdHostMap.get(hash);
 		Date currDate=new Date();
 		System.out.println(hash);

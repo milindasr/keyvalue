@@ -127,7 +127,7 @@ public class Worker implements Runnable{
 		Data.addNode(host,port);
 	}
 	private int getHashValue(int key){
-		return 1;
+		return key;
 	}
 	public String getanyHost(int key){
 		int hash=getHashValue(key);

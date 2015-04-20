@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -28,11 +29,13 @@ public class SlaveServer implements Runnable{
     protected Thread       runningThread= null;
     protected String       path="";
     protected String 	   secpath="";
-    protected String[]     getValues=new String[3];
+    protected String[]     getValues;
+    File f;
     public SlaveServer(int port,String path,String secpath){
         this.serverPort = port;
         this.path=path;
         this.secpath=secpath;
+        f = new File(path);
     }
 
     public void run(){
@@ -117,6 +120,7 @@ public class SlaveServer implements Runnable{
     		return "OK";
     	}
     	else if(request.startsWith("GET")){
+    		
     		if(request.contains("::")){
     			String[] splits=request.split("::");
     			String get=splits[0];
@@ -124,6 +128,7 @@ public class SlaveServer implements Runnable{
     			sc.next();
     			sc.nextInt();
     			sc.close();
+    			getValues=new String[splits.length];
     			getValues[0]=readString(get);
     			for(int i=1;i<splits.length;i++){
     				Scanner sc1=new Scanner(splits[i]);
@@ -135,11 +140,12 @@ public class SlaveServer implements Runnable{
         			getValues[i]=repclient1.sendGetrquest(get, host1, port1);
         			}
     			}
-    			String ret="";
-    			for(int i=0;i<getValues.length;i++){
-    				ret=ret+getValues[i];
-    			}
-    			return ret;
+    			String retty="";
+    					for(int i=0;i<getValues.length;i++){
+    						retty=retty+ getValues[i];
+    					}
+    		    System.out.println("######################"+retty);			
+    			return getValue();
     		}
     		else{
     			return readString(request);
@@ -147,6 +153,37 @@ public class SlaveServer implements Runnable{
     	}
     	return "OK";
     }
+    private String getValue()
+    {
+    	int n=getValues.length;
+    	int maxVer=0;
+    	String value="";
+    	for(int i=0;i<n;i++){
+    		String splits[]=getValues[i].split(" ");
+    		if(Integer.parseInt(splits[1])>=maxVer)
+    		{
+    			maxVer=Integer.parseInt(splits[1]);
+    		}
+    	}
+    	System.out.println("Max Ver "+maxVer);
+    	int count=0;
+    	ArrayList<String> val=new ArrayList<String>();
+    	for(int i=0;i<n;i++){
+    		String splits[]=getValues[i].split(" ");
+    		if(Integer.parseInt(splits[1])==maxVer && !val.contains(splits[0])){
+    			value=value+splits[0]+" ";
+    			val.add(splits[0]);
+    			count++;
+    		}
+    	}
+    
+    	if(count>1)
+    		return "Could not resolve frome these values:: "+value;
+    	else
+    		return value;
+    	
+    }
+
     private String readString(String get){
     	Scanner sc=new Scanner(get);
 		sc.next();
@@ -186,11 +223,12 @@ public class SlaveServer implements Runnable{
 		sc1.close();
 		return returns;
     }
-    private String get(int key){
+    private synchronized String get(int key){
     	String getty="";
     	try {
-    		File f = new File(path);
+    		
     		BufferedReader reader = new BufferedReader(new FileReader(f));
+    	
     		String currentLine;
 			while((currentLine = reader.readLine()) != null ) {
 				if(currentLine.isEmpty())
@@ -202,10 +240,12 @@ public class SlaveServer implements Runnable{
 	        	sc.close();
 	        	if(filekey==key){
 	        		getty=getty+filevalue+" "+version;
+	        		reader.close();
 	        		return getty;
 	        	}
 			}
 			reader.close();
+			//f.isFile();
 			return "-1 -1";
     } catch (IOException e) {
 		
@@ -213,11 +253,12 @@ public class SlaveServer implements Runnable{
 	}
     	return "-1 -1";
     }
-    private void put(int key,String value){
+    private synchronized void put(int key,String value){
     	boolean status=false;
     	try {
-    		File f = new File(path);
-    		String tempString=path+serverPort;
+    		//File f = new File(path);
+    		String temppath=path.substring(0, path.indexOf(".")-1);
+    		String tempString=temppath+serverPort+".txt";
 			File temp=new File(tempString);
 			if(!f.exists()){
 				f.createNewFile();
@@ -235,7 +276,7 @@ public class SlaveServer implements Runnable{
 	        	sc.close();
 	        	if(filekey==key){
 	        		version++;
-	        		writer.write("\n"+filekey+" "+filevalue+" "+version);
+	        		writer.write("\n"+filekey+" "+value+" "+version);
 	        		status=true;
 	        	}
 	        	else{
@@ -248,7 +289,13 @@ public class SlaveServer implements Runnable{
 			reader.close();
 			writer.close();
 			f.delete();
-        	temp.renameTo(f);
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	System.out.println(temp.renameTo(f)+"write please\n");
 			System.out.println(key+" "+value+"\nwritten to primary database"+path);
 			
 		} catch (IOException e) {

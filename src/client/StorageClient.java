@@ -1,9 +1,11 @@
 package client;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
@@ -40,7 +42,7 @@ public class StorageClient {
 		}
 
 
-		serverHandler(slavehost,slaveport,putString);
+		System.out.println(serverHandler(slavehost,slaveport,putString));
 
 	}
 	public void sendGetRequest(int key){
@@ -49,6 +51,7 @@ public class StorageClient {
 		String slavehost = null;
 		int slaveport = 0;
 		String slaveinfo=serverHandler("localhost",9000,hostString);
+		System.out.println("************************"+slaveinfo);
 		slaveinfo=slaveinfo.substring(8);
 		String[] slaves=slaveinfo.split("::");
 		for(int i=0;i<slaves.length;i++){
@@ -64,8 +67,8 @@ public class StorageClient {
 			sc.close();
 		}
 
-        System.out.println(getString+"**************");
-		serverHandler(slavehost,slaveport,getString);
+        
+		System.out.println(serverHandler(slavehost,slaveport,getString));
 	
 
 	}
@@ -75,11 +78,11 @@ public class StorageClient {
 		String response="";
 		try
 		{
-		   System.out.println("CLIENT Connecting to " + serverName
-		                       + " on port " + port);
+		  // System.out.println("CLIENT Connecting to " + serverName
+		  //                     + " on port " + port);
 		   Socket client = new Socket(serverName, port);
-		   System.out.println("CLIENT Just connected to "
-		                + client.getRemoteSocketAddress());
+		 //  System.out.println("CLIENT Just connected to "
+		 //               + client.getRemoteSocketAddress());
 		   OutputStream outToServer = client.getOutputStream();
 		   DataOutputStream out =
 		                 new DataOutputStream(outToServer);
@@ -99,9 +102,30 @@ public class StorageClient {
 			return response;
 		}
 	}
-	public static void main(String args[]){
+	public static void main(String args[]) throws IOException{
+		String input;
 		StorageClient sc=new StorageClient();
-		//sc.sendPutrequest(1, "choooooo");
-		sc.sendGetRequest(1);
+		while(true)
+		{
+			System.out.println("Enter request");
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			input = br.readLine();
+			if(input.startsWith("put")){
+				String[] parts=input.split(" ");
+				int key= Integer.parseInt(parts[1]);
+				sc.sendPutrequest(key, parts[2]);
+			}
+			else if(input.startsWith("get")){
+				String[] parts=input.split(" ");
+				int key= Integer.parseInt(parts[1]);
+				sc.sendGetRequest(key);
+			}
+			else{
+				break;
+			}
+				
+		}
+		
 	}
+
 }
