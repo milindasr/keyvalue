@@ -9,11 +9,17 @@ import java.net.Socket;
 public class HeartBeat extends Thread{
 	private int port;
 	private String host;
+	
 	static private long TmHB = 15000;
-	public HeartBeat (String host,int port)
+	String masterhost="";
+	int masterport;
+	
+	public HeartBeat (String host,int port,String masterhost,int masterport)
 			{ 
 				this.host=host;
 				this.port = port;
+				this.masterhost=masterhost;
+				this.masterport=masterport;
 			}
 	@SuppressWarnings("resource")
 	public void run()
@@ -23,7 +29,7 @@ public class HeartBeat extends Thread{
 		while(true)
 		{
 		 try {
-			client = new Socket("localhost", 9000);
+			client = new Socket(masterhost, masterport);
 			OutputStream outToServer = client.getOutputStream();
 			DataOutputStream out =
 			                 new DataOutputStream(outToServer);

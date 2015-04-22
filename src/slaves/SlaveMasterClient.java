@@ -8,13 +8,19 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public class SlaveMasterClient {
+	String masterhost="";
+	int masterport;
+	public SlaveMasterClient(String masterhost,int masterport){
+		this.masterhost=masterhost;
+		this.masterport=masterport;
+	}
 	public void sendJoinRequest(String host,int port){
 		String joinString="JOIN "+ host +" " + port;
-		serverHandler("localhost",9000,joinString);
+		serverHandler(masterhost,masterport,joinString);
 	}
 	public boolean sendIsAlive(String host,int port){
 		String joinString="ISALIVE "+ host +" " + port;
-		String status=serverHandler("localhost",9000,joinString);
+		String status=serverHandler(masterhost,masterport,joinString);
 		if(status.equals("ALIVE"))
 			return true;
 		else{

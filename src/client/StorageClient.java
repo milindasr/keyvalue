@@ -11,12 +11,14 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class StorageClient {
+	String masterhost="";
+	int masterport;
 	public void sendPutrequest(int key,String value){
 		String hostString="GETHOST "+key;
 		String putString="";
 		String slavehost = null;
 		int slaveport = 0;
-		String slaveinfo=serverHandler("localhost",9000,hostString);
+		String slaveinfo=serverHandler(masterhost,masterport,hostString);
 		slaveinfo=slaveinfo.substring(8);
 		String[] slaves=slaveinfo.split("::");
 
@@ -50,7 +52,7 @@ public class StorageClient {
 		String getString="";
 		String slavehost = null;
 		int slaveport = 0;
-		String slaveinfo=serverHandler("localhost",9000,hostString);
+		String slaveinfo=serverHandler(masterhost,masterport,hostString);
 		System.out.println("************************"+slaveinfo);
 		slaveinfo=slaveinfo.substring(8);
 		String[] slaves=slaveinfo.split("::");
@@ -105,6 +107,9 @@ public class StorageClient {
 	public static void main(String args[]) throws IOException{
 		String input;
 		StorageClient sc=new StorageClient();
+		sc.masterhost=args[0];
+		sc.masterport=Integer.parseInt(args[1]);
+		
 		while(true)
 		{
 			System.out.println("Enter request");

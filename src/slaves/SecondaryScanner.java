@@ -12,13 +12,17 @@ import java.util.Scanner;
 public class SecondaryScanner implements Runnable{
 	
 	private String secpath="";
-	public SecondaryScanner(String secpath){
+	String masterhost="";
+	int masterport;
+	public SecondaryScanner(String secpath,String masterhost,int masterport){
 		this.secpath=secpath;
+		this.masterhost=masterhost;
+		this.masterport=masterport;
 	}
 
 	@Override
 	public void run() {
-		SlaveMasterClient masterclient=new SlaveMasterClient();
+		SlaveMasterClient masterclient=new SlaveMasterClient(masterhost,masterport);
 		while(true){
 			try {
 				Thread.sleep(10000);
