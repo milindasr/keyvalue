@@ -55,7 +55,7 @@ public class Worker implements Runnable{
 			try {
 				DataOutputStream out =
 						new DataOutputStream(output);
-				out.writeUTF("OK");
+				out.writeUTF("SUCCESS");
 				
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -113,7 +113,7 @@ public class Worker implements Runnable{
 			try {
 				DataOutputStream out =
 						new DataOutputStream(output);
-				out.writeUTF("OK");
+				out.writeUTF("SUCCESS");
 				
 			} catch (IOException e) {
 				e.printStackTrace();

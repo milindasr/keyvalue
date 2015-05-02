@@ -117,7 +117,7 @@ public class SlaveServer implements Runnable{
     			writetoPrimRSec(request);
     			
     		}
-    		return "OK";
+    		return "SUCCESS";
     	}
     	else if(request.startsWith("GET")){
     		
@@ -151,7 +151,7 @@ public class SlaveServer implements Runnable{
     			return readString(request);
     		}
     	}
-    	return "OK";
+    	return "SUCCESS";
     }
     private String getValue()
     {

@@ -53,7 +53,7 @@ public class StorageClient {
 		String slavehost = null;
 		int slaveport = 0;
 		String slaveinfo=serverHandler(masterhost,masterport,hostString);
-		System.out.println("************************"+slaveinfo);
+		System.out.println("The returned value is");
 		slaveinfo=slaveinfo.substring(8);
 		String[] slaves=slaveinfo.split("::");
 		for(int i=0;i<slaves.length;i++){
