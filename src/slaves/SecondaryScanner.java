@@ -26,8 +26,11 @@ public class SecondaryScanner implements Runnable{
 		while(true){
 			try {
 				Thread.sleep(10000);
+				String temppath=secpath.substring(0, secpath.indexOf(".")-1);
+	    		String tempString=temppath+masterport+".txt";
+				File temp=new File(tempString);
 				File f = new File(secpath);
-				File temp=new File("C:\\Users\\Milind\\Desktop\\help\\temp.txt");
+				
 				if(!f.exists()){
 					continue;
 				}
